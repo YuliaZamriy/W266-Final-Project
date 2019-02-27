@@ -1,0 +1,114 @@
+Speaker Map
+File count:
+18
+Line counts:
+   202055 /home/yulia/Documents/MIDS/W266/final-project/data/hein-daily/097_SpeakerMap.txt
+    77622 /home/yulia/Documents/MIDS/W266/final-project/data/hein-daily/113_SpeakerMap.txt
+   193359 /home/yulia/Documents/MIDS/W266/final-project/data/hein-daily/104_SpeakerMap.txt
+   116867 /home/yulia/Documents/MIDS/W266/final-project/data/hein-daily/107_SpeakerMap.txt
+   166896 /home/yulia/Documents/MIDS/W266/final-project/data/hein-daily/101_SpeakerMap.txt
+   141236 /home/yulia/Documents/MIDS/W266/final-project/data/hein-daily/105_SpeakerMap.txt
+    94642 /home/yulia/Documents/MIDS/W266/final-project/data/hein-daily/111_SpeakerMap.txt
+    91061 /home/yulia/Documents/MIDS/W266/final-project/data/hein-daily/112_SpeakerMap.txt
+   162472 /home/yulia/Documents/MIDS/W266/final-project/data/hein-daily/102_SpeakerMap.txt
+    67972 /home/yulia/Documents/MIDS/W266/final-project/data/hein-daily/114_SpeakerMap.txt
+   192048 /home/yulia/Documents/MIDS/W266/final-project/data/hein-daily/100_SpeakerMap.txt
+   201200 /home/yulia/Documents/MIDS/W266/final-project/data/hein-daily/098_SpeakerMap.txt
+   141358 /home/yulia/Documents/MIDS/W266/final-project/data/hein-daily/106_SpeakerMap.txt
+   159940 /home/yulia/Documents/MIDS/W266/final-project/data/hein-daily/103_SpeakerMap.txt
+   130094 /home/yulia/Documents/MIDS/W266/final-project/data/hein-daily/110_SpeakerMap.txt
+   127982 /home/yulia/Documents/MIDS/W266/final-project/data/hein-daily/108_SpeakerMap.txt
+   117132 /home/yulia/Documents/MIDS/W266/final-project/data/hein-daily/109_SpeakerMap.txt
+   201889 /home/yulia/Documents/MIDS/W266/final-project/data/hein-daily/099_SpeakerMap.txt
+  2585825 total
+Description
+File count:
+18
+Line counts:
+   209648 /home/yulia/Documents/MIDS/W266/final-project/data/hein-daily/descr_106.txt
+   280289 /home/yulia/Documents/MIDS/W266/final-project/data/hein-daily/descr_098.txt
+   283399 /home/yulia/Documents/MIDS/W266/final-project/data/hein-daily/descr_097.txt
+   281528 /home/yulia/Documents/MIDS/W266/final-project/data/hein-daily/descr_099.txt
+   187647 /home/yulia/Documents/MIDS/W266/final-project/data/hein-daily/descr_109.txt
+   211367 /home/yulia/Documents/MIDS/W266/final-project/data/hein-daily/descr_110.txt
+   145901 /home/yulia/Documents/MIDS/W266/final-project/data/hein-daily/descr_112.txt
+   200159 /home/yulia/Documents/MIDS/W266/final-project/data/hein-daily/descr_108.txt
+   154400 /home/yulia/Documents/MIDS/W266/final-project/data/hein-daily/descr_111.txt
+   209267 /home/yulia/Documents/MIDS/W266/final-project/data/hein-daily/descr_105.txt
+   180726 /home/yulia/Documents/MIDS/W266/final-project/data/hein-daily/descr_107.txt
+   276162 /home/yulia/Documents/MIDS/W266/final-project/data/hein-daily/descr_100.txt
+   251217 /home/yulia/Documents/MIDS/W266/final-project/data/hein-daily/descr_101.txt
+   243092 /home/yulia/Documents/MIDS/W266/final-project/data/hein-daily/descr_102.txt
+   235974 /home/yulia/Documents/MIDS/W266/final-project/data/hein-daily/descr_103.txt
+   112291 /home/yulia/Documents/MIDS/W266/final-project/data/hein-daily/descr_114.txt
+   128149 /home/yulia/Documents/MIDS/W266/final-project/data/hein-daily/descr_113.txt
+   274985 /home/yulia/Documents/MIDS/W266/final-project/data/hein-daily/descr_104.txt
+  3866201 total
+By party bigrams
+File count:
+18
+Line counts:
+   5539223 /home/yulia/Documents/MIDS/W266/final-project/data/hein-daily/byparty_2gram_099.txt
+   4037319 /home/yulia/Documents/MIDS/W266/final-project/data/hein-daily/byparty_2gram_111.txt
+   4618011 /home/yulia/Documents/MIDS/W266/final-project/data/hein-daily/byparty_2gram_107.txt
+   4933747 /home/yulia/Documents/MIDS/W266/final-project/data/hein-daily/byparty_2gram_109.txt
+   5052645 /home/yulia/Documents/MIDS/W266/final-project/data/hein-daily/byparty_2gram_106.txt
+   5451737 /home/yulia/Documents/MIDS/W266/final-project/data/hein-daily/byparty_2gram_101.txt
+   5624592 /home/yulia/Documents/MIDS/W266/final-project/data/hein-daily/byparty_2gram_104.txt
+   4941945 /home/yulia/Documents/MIDS/W266/final-project/data/hein-daily/byparty_2gram_105.txt
+   3203962 /home/yulia/Documents/MIDS/W266/final-project/data/hein-daily/byparty_2gram_114.txt
+   3539946 /home/yulia/Documents/MIDS/W266/final-project/data/hein-daily/byparty_2gram_113.txt
+   5064227 /home/yulia/Documents/MIDS/W266/final-project/data/hein-daily/byparty_2gram_110.txt
+   5296021 /home/yulia/Documents/MIDS/W266/final-project/data/hein-daily/byparty_2gram_097.txt
+   5692163 /home/yulia/Documents/MIDS/W266/final-project/data/hein-daily/byparty_2gram_100.txt
+   5517177 /home/yulia/Documents/MIDS/W266/final-project/data/hein-daily/byparty_2gram_103.txt
+   5422815 /home/yulia/Documents/MIDS/W266/final-project/data/hein-daily/byparty_2gram_098.txt
+   5029832 /home/yulia/Documents/MIDS/W266/final-project/data/hein-daily/byparty_2gram_108.txt
+   3786923 /home/yulia/Documents/MIDS/W266/final-project/data/hein-daily/byparty_2gram_112.txt
+   5585311 /home/yulia/Documents/MIDS/W266/final-project/data/hein-daily/byparty_2gram_102.txt
+  88337596 total
+By speaker bigrams
+File count:
+18
+   7736698 /home/yulia/Documents/MIDS/W266/final-project/data/hein-daily/byspeaker_2gram_113.txt
+  12461190 /home/yulia/Documents/MIDS/W266/final-project/data/hein-daily/byspeaker_2gram_098.txt
+  12863622 /home/yulia/Documents/MIDS/W266/final-project/data/hein-daily/byspeaker_2gram_103.txt
+  10723795 /home/yulia/Documents/MIDS/W266/final-project/data/hein-daily/byspeaker_2gram_107.txt
+  12259098 /home/yulia/Documents/MIDS/W266/final-project/data/hein-daily/byspeaker_2gram_106.txt
+  13162832 /home/yulia/Documents/MIDS/W266/final-project/data/hein-daily/byspeaker_2gram_099.txt
+  12018068 /home/yulia/Documents/MIDS/W266/final-project/data/hein-daily/byspeaker_2gram_110.txt
+  13306994 /home/yulia/Documents/MIDS/W266/final-project/data/hein-daily/byspeaker_2gram_100.txt
+  12133531 /home/yulia/Documents/MIDS/W266/final-project/data/hein-daily/byspeaker_2gram_097.txt
+  14400311 /home/yulia/Documents/MIDS/W266/final-project/data/hein-daily/byspeaker_2gram_104.txt
+   6689215 /home/yulia/Documents/MIDS/W266/final-project/data/hein-daily/byspeaker_2gram_114.txt
+  13349559 /home/yulia/Documents/MIDS/W266/final-project/data/hein-daily/byspeaker_2gram_102.txt
+  11739103 /home/yulia/Documents/MIDS/W266/final-project/data/hein-daily/byspeaker_2gram_108.txt
+  11368889 /home/yulia/Documents/MIDS/W266/final-project/data/hein-daily/byspeaker_2gram_109.txt
+   8619660 /home/yulia/Documents/MIDS/W266/final-project/data/hein-daily/byspeaker_2gram_112.txt
+  11994620 /home/yulia/Documents/MIDS/W266/final-project/data/hein-daily/byspeaker_2gram_105.txt
+   9134134 /home/yulia/Documents/MIDS/W266/final-project/data/hein-daily/byspeaker_2gram_111.txt
+  12859289 /home/yulia/Documents/MIDS/W266/final-project/data/hein-daily/byspeaker_2gram_101.txt
+ 206820608 total
+Speeches
+File count:
+18
+Line counts:
+    209267 /home/yulia/Documents/MIDS/W266/final-project/data/hein-daily/speeches_105.txt
+    243092 /home/yulia/Documents/MIDS/W266/final-project/data/hein-daily/speeches_102.txt
+    211367 /home/yulia/Documents/MIDS/W266/final-project/data/hein-daily/speeches_110.txt
+    274985 /home/yulia/Documents/MIDS/W266/final-project/data/hein-daily/speeches_104.txt
+    283399 /home/yulia/Documents/MIDS/W266/final-project/data/hein-daily/speeches_097.txt
+    112291 /home/yulia/Documents/MIDS/W266/final-project/data/hein-daily/speeches_114.txt
+    200159 /home/yulia/Documents/MIDS/W266/final-project/data/hein-daily/speeches_108.txt
+    145901 /home/yulia/Documents/MIDS/W266/final-project/data/hein-daily/speeches_112.txt
+    235974 /home/yulia/Documents/MIDS/W266/final-project/data/hein-daily/speeches_103.txt
+    154400 /home/yulia/Documents/MIDS/W266/final-project/data/hein-daily/speeches_111.txt
+    180726 /home/yulia/Documents/MIDS/W266/final-project/data/hein-daily/speeches_107.txt
+    280289 /home/yulia/Documents/MIDS/W266/final-project/data/hein-daily/speeches_098.txt
+    187647 /home/yulia/Documents/MIDS/W266/final-project/data/hein-daily/speeches_109.txt
+    276162 /home/yulia/Documents/MIDS/W266/final-project/data/hein-daily/speeches_100.txt
+    281528 /home/yulia/Documents/MIDS/W266/final-project/data/hein-daily/speeches_099.txt
+    209648 /home/yulia/Documents/MIDS/W266/final-project/data/hein-daily/speeches_106.txt
+    251217 /home/yulia/Documents/MIDS/W266/final-project/data/hein-daily/speeches_101.txt
+    128149 /home/yulia/Documents/MIDS/W266/final-project/data/hein-daily/speeches_113.txt
+   3866201 total
