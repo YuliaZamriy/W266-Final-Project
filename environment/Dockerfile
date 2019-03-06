@@ -1,10 +1,13 @@
+### update 3/5/2019: added requests to the installation pack
+
 FROM tensorflow/tensorflow:latest-py3-jupyter
 
 RUN apt-get update \
   && apt-get install -y --no-install-recommends \
   git \
   tmux \
-  python3-bs4
+  python3-bs4 \
+  requests
 
 RUN pip install --upgrade pip
 
