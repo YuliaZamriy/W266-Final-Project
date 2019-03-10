@@ -17,5 +17,10 @@ grep -nr "|" speeches_* | cut -d : -f 1 | wc -l
 
 4. get a dictionary of all speakers
 ```
-cat ../raw/hein-daily/*_SpeakerMap.txt | ./speakermap_qa.py > speakermap_qa.txt
+cat ../raw/hein-daily/*_SpeakerMap.txt | ./speakermap_qa.py
+```
+
+5. get a dictionary of all speakers by congress
+```
+cat ../data/raw/hein-daily/*_SpeakerMap.txt | ./full_speakermap.py
 ```
