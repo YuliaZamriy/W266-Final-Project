@@ -12,7 +12,11 @@ for line in sys.stdin:
   # skip the header line
   if line[0] != 'speakerid':
     # concatenate last and first names
-    fullname = line[2] + ', ' + line[3]
+    fullname = line[2]+', '+line[3]
+    # get chamber, state, gender, party
+    payload = line[5]
+    # put it all in one key
+    full_key = fullname+"\t"+payload
     # speechid lengths differ by congress number
     if len(line[0]) == 8:
       # congresses 97-99
@@ -21,21 +25,21 @@ for line in sys.stdin:
       # congresses 100+
       congress = line[0][:3]
     # if a record for the congressperson exists
-    if len(speakermap[fullname]):
+    if len(speakermap[full_key]):
       # and this speech is for a different congress
-      if congress not in speakermap[fullname][0]:
+      if congress not in speakermap[full_key][0]:
         # add congress number to the first value list
-        speakermap[fullname][0].append(congress)
-        # add demo info to the second value list
-        # in case they changes chamber or state
-        speakermap[fullname][1].append(line[4:7])
+        speakermap[full_key][0].append(congress)
+        speakermap[full_key][1].append(line[4:8])
     else:
       # otherwise, create a record for the speaker
-      speakermap[fullname] = [[congress]]
-      speakermap[fullname].append([line[4:7]])
+      speakermap[full_key] = [[congress]]
+      speakermap[full_key].append([line[4:8]])
 
-# print one line for each speaker
-for person in speakermap:
-  # the their name, list of congresses, first demo record (for brevity)
-  print(f"{person}, {' '.join(speakermap[person][0])}, {', '.join(speakermap[person][1][0])}")
-#  print(f"{person}, {speakermap[person][0]}, {speakermap[person][1][0]}")
+print(f"{len(list(speakermap.keys()))} congresspeople were written to the output file")
+        
+with open("speakermap_qa.txt", "w") as f:
+    for person in speakermap:
+        congresses = ' '.join(speakermap[person][0])
+        payload = ' '.join(speakermap[person][1][0])
+        f.write(person+"\t"+congresses+"\t"+payload+"\n")
