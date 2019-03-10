@@ -53,3 +53,29 @@ docker run -it --rm -v <local/path/to/working/directory>:/tf/notebooks -p 8888:8
 Step 4. Open Jupyter Notebook
 
 Navigate to http://localhost:8888 and enter the token from the command line.
+
+# Working with Google Sheets
+
+Step 1. Connect Google Sheets and Jupyter Notebooks
+
+Very good instructions are [here](https://socraticowl.com/post/integrate-google-sheets-and-jupyter-notebooks/)
+
+Step 2. Adjust paramters in `./environment/gs_connect.py`: 
+
+- the location of the credentials json file
+- spreadsheet key (if different) from the Google Sheets URL
+
+Step 3. Enable Google Sheets API here:
+    + https://console.developers.google.com/apis/api/sheets.googleapis.com/overview?project=zzzzzzzzzzzzzzz
+    + The `zzzzzzzzzzzzzzz` needs to be adjusted for your project id. It can be obtained from client_id.json ("client_id":"zzzzzzzzzzzzzzz-xxxxxxxxxxxxxxxxxxxxxxxxx.apps.googleusercontent.com")
+    + Alternatively, you can run `gs_connect.py` and it'll give an error with the instructions
+
+Step 4. To call functions from `gs_connect.py` either:
+- copy this file to the working directory of the jupyter notebook where you need it
+- create a symbolic link to the file in the directory of the jupyter notebook where you need it (that way you don't need to re-copy the file if there are any changes to it):
+```
+ln -s <path to>/gs_connect.py gs_connect.py
+```
+
+
+
