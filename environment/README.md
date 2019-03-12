@@ -36,6 +36,11 @@ Note: run this command from the same directory where `Dockerfile` is
 docker build -t tf-nltk .
 ```
 
+Run this command to re-build the image (if there are changes to it)
+```
+docker build --no-cache -t tf-nltk .
+```
+
 Step 3a. Start `bash` container:
 
 Note: replace path with your own:
