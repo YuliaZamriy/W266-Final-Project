@@ -97,5 +97,11 @@ cat ../raw/hein-daily/*_SpeakerMap.txt , ./full_speakermap.py
     + Header: True
     + Columns: [speech_id, date, char_count, word_count, speakerid, party,  Congress, Ethnicity, Age, Age_lt_med, NonWhite, Female]
     + Separator: pipe
-
+- `full_descr_fuzzy.zip`
+    + [source](https://github.com/YuliaZamriy/W266-Final-Project/blob/master/data/QA/speech_descr_qa.ipynb)
+    + Content: same as full_descr but for congress people matched only on last name, gender and congress number
+    + Row count: 328,657 
+    + Header: True
+    + Columns: [speech_id, date, char_count, word_count, speakerid, party,  Congress, Ethnicity, Age, Age_lt_med, NonWhite, Female, speaker, Full Name]
+    + Separator: pipe
 
