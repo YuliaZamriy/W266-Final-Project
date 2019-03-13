@@ -44,30 +44,30 @@ cat ../raw/hein-daily/*_SpeakerMap.txt , ./full_speakermap.py
 - `speakermap_qa.txt`
     + [source](https://github.com/YuliaZamriy/W266-Final-Project/blob/master/data/QA/speakermap_qa.py)
     + Content: List of unique names for congress people
-    + Row count: 1791 (number of unique names for congress people in 18 congresses that have speech records)
+    + Row count: 1,791 (number of unique names for congress people in 18 congresses that have speech records)
     + Header: False
     + Columns: [Full Name, State, List of congresses, Chamber, State, Gender, Party]
     + Separator: tab
 - `congresspeople_age.txt`
     + [source](https://github.com/YuliaZamriy/W266-Final-Project/blob/master/data/QA/collecting_demo.ipynb)
     + Content: Birth year of each congress person
-    + Row count: 1807 (number of congress people in 18 congresses from congress.gov)
+    + Row count: 1,807 (number of congress people in 18 congresses from congress.gov)
     + Header: False
     + Columns: [Full name, Birth year]
     + Separator: tab
 - `congresspeople_id.txt`
     + [source](https://github.com/YuliaZamriy/W266-Final-Project/blob/master/data/QA/collecting_demo.ipynb)
     + Content: Unique congress ID from [CONGRESS.GOV](https://www.congress.gov/members)
-    + Row count: 1807 (number of congress people in 18 congresses from congress.gov)
+    + Row count: 1,807 (number of congress people in 18 congresses from congress.gov)
     + Header: False
     + Columns: [Full name, ID]
     + Separator: tab
 - `congresspeople_demo.txt`
     + [source](https://github.com/YuliaZamriy/W266-Final-Project/blob/master/data/QA/speakermap_qa.ipynb)
     + Content: All gender info (including ethnicity and age) for all congress people
-    + Row count: 1801 (number of congress people in 18 congresses from congress.gov that have speech records)
+    + Row count: 1,801 (number of congress people in 18 congresses from congress.gov that have speech records)
     + Header: True
-    + Columns: [Full Name,First Name,Last Name,First Last,List of Congresses,Chamber,State,Gender,Party,Ethnicity,BirthYear,Congress Name,  Alternative name (Wikipedia),Congress ID]
+    + Columns: [Full Name, First Name, Last Name, First Last, List of Congresses, Chamber, State, Gender, Party, Ethnicity, BirthYear, Congress Name,  Alternative name (Wikipedia), Congress ID]
     + Separator: pipe
 - `ethicity_aapia.txt`, `ethicity_black.txt`, `ethicity_hispanic.txt`
     + [source](https://github.com/YuliaZamriy/W266-Final-Project/blob/master/data/QA/collecting_demo.ipynb)
@@ -79,23 +79,23 @@ cat ../raw/hein-daily/*_SpeakerMap.txt , ./full_speakermap.py
 - `full_speakermap.txt`
     + [source](https://github.com/YuliaZamriy/W266-Final-Project/blob/master/data/QA/full_speakermap.py)
     + Content: aggregated speakermap files
-    + Row count: 9845 (full name + congress number)
+    + Row count: 9,845 (full name + congress number)
     + Header: False
     + Columns: [speaker id, Congress, Full Name, Chamber, State, Gender, Party, Speech Count]
     + Separator: tab
 - `full_speakermap_demo.txt`
     + [source](https://github.com/YuliaZamriy/W266-Final-Project/blob/master/EDA/EDA_Yulia_0309_speakermap.ipynb)
     + Content: aggregated speakermap files with demo information and target variables
-    + Row count: 9845 (full name + congress number)
+    + Row count: 9,845 (full name + congress number)
     + Header: True
-    + Columns: [speakerid,Congress,Full Name, Chamber,State,Gender,Party, SpeachCount,List of Congresses,Ethnicity,BirthYear,CongressYear,Age, Age_lt_med,NonWhite,Female,Age_med]
+    + Columns: [speakerid, Congress, Full Name, Chamber, State, Gender, Party, SpeachCount, List of Congresses, Ethnicity, BirthYear, CongressYear, Age,  Age_lt_med, NonWhite, Female, Age_med]
     + Separator: pipe
 - `full_descr.zip`
     + [source](https://github.com/YuliaZamriy/W266-Final-Project/blob/master/data/QA/speech_descr_qa.ipynb)
     + Content: concatenated *descr* files with target variables
     + Row count: 2,585,807 (number of speeches with speaker ids for 18 congresses)
     + Header: True
-    + Columns: [speech_id,date,char_count,word_count,speakerid,party, Congress,Ethnicity,Age,Age_lt_med,NonWhite,Female]
+    + Columns: [speech_id, date, char_count, word_count, speakerid, party,  Congress, Ethnicity, Age, Age_lt_med, NonWhite, Female]
     + Separator: pipe
 
 
