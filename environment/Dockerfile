@@ -1,4 +1,5 @@
 ### update 3/5/2019: added requests to the installation pack
+### update 3/19/2019: added spicy and sklearn to the installation pack
 
 FROM tensorflow/tensorflow:latest-py3-jupyter
 
@@ -9,6 +10,6 @@ RUN apt-get update \
   python3-bs4
 
 RUN pip install --upgrade pip
-RUN pip install -U nltk pandas requests feedparser gspread oauth2client df2gspread
+RUN pip install -U nltk pandas requests feedparser gspread oauth2client df2gspread scipy scikit-learn
 
-RUN python -m nltk.downloader -d /usr/share/nltk_data all
+#RUN python -m nltk.downloader -d /usr/share/nltk_data all
