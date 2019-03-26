@@ -12,6 +12,8 @@ import matplotlib.pyplot as plt
 
 # from collections import Counter
 from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.feature_selection import SelectKBest
+from sklearn.feature_selection import f_classif
 
 from sklearn.metrics import confusion_matrix
 from sklearn.calibration import calibration_curve
@@ -71,7 +73,7 @@ def get_num_words_per_sample(sample_texts):
     return np.median(num_words)
 
 
-def get_ngrams(data, ngram_range=(3, 3), top_n=10):
+def get_ngrams(data, ngram_range=(3, 3), top_n=10, compare=True):
     """"
     # Arguments
     samples_texts: list, sample texts.
@@ -91,23 +93,16 @@ def get_ngrams(data, ngram_range=(3, 3), top_n=10):
     }
 
     vectorizer = CountVectorizer(**kwargs)
+    data_vec = vectorizer.fit_transform(data)
 
-    # This creates a vocabulary (dict, where keys are n-grams and values are
-    # idxices). This also converts every text to an array the length of
-    # vocabulary, where every element idxicates the count of the n-gram
-    # corresponding at that idxex in vocabulary.
-    vectorized_texts = vectorizer.fit_transform(data)
-
-    # This is the list of all n-grams in the index order from the vocabulary.
     all_ngrams = list(vectorizer.get_feature_names())
     num_ngrams = min(top_n, len(all_ngrams))
-    # Add up the counts per n-gram ie. column-wise
-    all_counts = vectorized_texts.sum(axis=0).tolist()[0]
-    # Sort n-grams and counts by frequency and get top `num_ngrams` ngrams.
+    all_counts = data_vec.sum(axis=0).tolist()[0]
     all_counts, all_ngrams = zip(*[(c, n) for c, n in sorted(
         zip(all_counts, all_ngrams), reverse=True)])
-    # ngrams = list(all_ngrams)[:num_ngrams]
-    # counts = list(all_counts)[:num_ngrams]
+
+    if compare:
+        compare_ngrams(data_vec, bins, vectorizer)
 
     return list(all_ngrams)[:num_ngrams], list(all_counts)[:num_ngrams]
 
@@ -273,23 +268,24 @@ def summarize_df(df, index):
 
 def check_bin_probs_distr(y_probs, ids, descr, bins=[0.0, 0.4, 0.6, 1.0]):
 
-    df = pd.DataFrame.from_dict(descr, orient='index')
-    main_df = summarize_df(df.loc[ids], 'base')
+    descr_df = pd.DataFrame.from_dict(descr, orient='index')
+    main_df = summarize_df(descr_df.loc[ids], 'base')
 
     print("Finished building main df")
 
-    # bins = np.array(bins)
     y_binned = np.digitize(y_probs, bins)
 
     df = pd.DataFrame()
 
     for i in range(1, len(bins)):
         ids_bin = ids[y_binned.flatten() == i]
-        ids_df = summarize_df(df.loc[ids_bin], bins[i])
+        ids_df = summarize_df(descr_df.loc[ids_bin], bins[i])
         df = df.append(ids_df)
         print("Finished bin {}".format(bins[i]))
 
-    df = round(df.divide(main_df.values), 2)
+    main_df = main_df.append([main_df] * (df.shape[0] - 1), ignore_index=True)
+    main_df.index = df.index
+    df = round(df.divide(main_df), 2)
 
     return df
 
@@ -311,17 +307,61 @@ def ngrams_by_bin(data, y_probs,
         print("-" * 20)
 
 
+def compare_ngrams(data, y_probs,
+                   bins=[0.0, 0.4, 0.6, 1.0],
+                   ngram_range=(3, 4),
+                   top_k=10):
+
+    y_binned = np.digitize(y_probs, bins).flatten()
+
+    kwargs = {
+        'ngram_range': ngram_range,
+        'dtype': 'int32',
+        'strip_accents': 'unicode',
+        'decode_error': 'replace',
+        'analyzer': 'word',  # Split text into word tokens.
+    }
+
+    vectorizer = CountVectorizer(**kwargs)
+    data_vec = vectorizer.fit_transform(data)
+
+    selector = SelectKBest(
+        f_classif,
+        k=min(top_k, data_vec.shape[1]))
+
+    selector.fit(data_vec, y_binned)
+
+    data_vec = selector.transform(data_vec).astype(dtype=np.float32)
+
+    all_ngrams = np.array(vectorizer.get_feature_names())
+    top_ngrams = all_ngrams[np.argsort(selector.scores_)[::-1]][:top_k]
+    top_scores = selector.scores_[np.argsort(selector.scores_)[::-1]][:top_k]
+
+    cols = selector.get_support(indices=True)
+    data_vec = pd.DataFrame(data_vec.toarray())
+    data_vec = pd.concat([data_vec, pd.Series(y_binned)], axis=1)
+    data_vec.columns = list(all_ngrams[cols]) + ['bin']
+    data_vec = data_vec.groupby('bin').sum().T
+    data_vec.columns = bins[1:]
+
+    print("\nTop {} ngrams by differentiating score:".format(top_k))
+    for i in range(len(top_ngrams)):
+        print(top_ngrams[i], "\t", round(top_scores[i], 1))
+
+    return data_vec
+
+
 def get_mispredictions(y_true, y_probs, data, ids, true, prob):
 
     if prob > 0.5:
-        indices = (y_true == true) & (y_probs.flatten() > prob)
+        indices = (np.array(y_true) == true) & (y_probs.flatten() > prob)
     else:
-        indices = (y_true == true) & (y_probs.flatten() < prob)
+        indices = (np.array(y_true) == true) & (y_probs.flatten() < prob)
 
     speeches = np.array(data)[indices]
     probs = y_probs[indices]
     ids = np.array(ids)[indices]
-    ind = np.random.choice(range(len(speeches)))
+    ind = np.random.choice(len(speeches))
     return speeches[ind], probs[ind][0], ids[ind]
 
 
@@ -354,44 +394,3 @@ def print_mispredictions(y_true, y_probs, data, ids, descr):
         print(i, descr[preds[2]][i])
     print("\n", preds[0])
     print("-" * 20)
-
-# def print_mispredictions(y_true, y_probs, data, ids, descr):
-
-#     true_pos = np.array(data)[(y_true == 1) & (y_probs.flatten() > 0.9)]
-#     true_pos_prob = y_probs[(y_true == 1) & (y_probs.flatten() > 0.9)]
-#     true_pos_ids = np.array(ids)[(y_true == 1) & (y_probs.flatten() > 0.9)]
-
-#     true_neg = np.array(data)[(y_true == 0) & (y_probs.flatten() < 0.1)]
-#     true_neg_prob = y_probs[(y_true == 0) & (y_probs.flatten() < 0.1)]
-#     true_neg_ids = np.array(ids)[(y_true == 0) & (y_probs.flatten() < 0.1)]
-
-#     false_pos = np.array(data)[(y_true == 0) & (y_probs.flatten() > 0.9)]
-#     false_pos_prob = y_probs[(y_true == 0) & (y_probs.flatten() > 0.9)]
-#     false_pos_ids = np.array(ids)[(y_true == 0) & (y_probs.flatten() > 0.9)]
-
-#     false_neg = np.array(data)[(y_true == 1) & (y_probs.flatten() < 0.1)]
-#     false_neg_prob = y_probs[(y_true == 1) & (y_probs.flatten() < 0.1)]
-#     false_neg_ids = np.array(ids)[(y_true == 1) & (y_probs.flatten() < 0.1)]
-
-#     ind = np.random.choice(range(len(true_pos)))
-#     print("\nTrue positive (Predicted prob: {0:.2f}):\n".format(true_pos_prob[ind][0]))
-#     print(descr[true_pos_ids[ind]])
-#     print(true_pos[ind])
-#     print("-" * 20)
-
-#     ind = np.random.choice(range(len(true_neg)))
-#     print("\nTrue negative (Predicted prob: {0:.2f}):\n".format(true_neg_prob[ind][0]))
-#     print(descr[true_neg_ids[ind]])
-#     print(true_neg[ind])
-#     print("-" * 20)
-
-#     ind = np.random.choice(range(len(false_pos)))
-#     print("\nFalse positive (Predicted prob: {0:.2f}):\n".format(false_pos_prob[ind][0]))
-#     print(descr[false_pos_ids[ind]])
-#     print(false_pos[ind])
-#     print("-" * 20)
-
-#     ind = np.random.choice(range(len(false_neg)))
-#     print("\nFalse negative (Predicted prob: {0:.2f}):\n".format(false_neg_prob[ind][0]))
-#     print(descr[false_neg_ids[ind]])
-#     print(false_neg[ind])

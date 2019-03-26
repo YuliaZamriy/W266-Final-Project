@@ -139,7 +139,7 @@ def split_by_category(data, ids, target, descr, category):
     return train, train_ids, train_target, val, val_ids, val_target, test, test_ids, test_target
 
 
-def ngram_vectorize(train, train_ids, val, test, **kwargs):
+def ngram_vectorize(train, train_target, val, test, **kwargs):
     """
     Vectorizes texts as n-gram vectors.
 
@@ -176,7 +176,7 @@ def ngram_vectorize(train, train_ids, val, test, **kwargs):
 
     # Select top 'k' of the vectorized features.
     selector = SelectKBest(f_classif, k=min(kwargs['top_k'], x_train.shape[1]))
-    selector.fit(x_train, train_ids)
+    selector.fit(x_train, train_target)
     x_train = selector.transform(x_train).astype(dtype=np.float32)
     x_val = selector.transform(x_val).astype(dtype=np.float32)
     x_test = selector.transform(x_test).astype(dtype=np.float32)
