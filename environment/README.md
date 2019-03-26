@@ -82,5 +82,52 @@ Step 4. To call functions from `gs_connect.py` either:
 ln -s <path to>/gs_connect.py gs_connect.py
 ```
 
+# Working on Google Cloud Instance
 
+- ssh into instance:
+
+`gcloud compute ssh --ssh-flag="-L 8896:127.0.0.1:8896" --ssh-flag="-L 8006:127.0.0.1:8006" w266`
+
+- create directories on the instance:
+
+`mkdir -p ~/final-project/data/raw/hein-daily`
+`mkdir -p ~/final-project/data/QA`
+`mkdir -p ~/final-project/Classification`
+`mkdir -p ~/final-project/Classification/helpers`
+`mkdir -p ~/final-project/Classification/w266_common`
+
+- copy files into instance:
+
+*Speeches*:
+
+`gcloud compute scp ./final-project/data/raw/hein-daily/speeches* w266:~/final-project/data/raw/hein-daily`
+
+*Congresspeople Description*:
+
+`gcloud compute scp ./final-project/data/QA/full_descr.txt w266:~/final-project/data/QA`
+
+*Working notebooks and scripts*:
+
+`gcloud compute scp ./final-project/Classification/helpers/*.py w266:~/final-project/Classification/helpers`
+
+`gcloud compute scp ./2019-spring-main/common/*.py  w266:~/final-project/Classification/w266_common`
+
+`gcloud compute scp ./final-project/Classification/Baseline-all-test.ipynb w266:~/final-project/Classification/Baseline-all-gce.ipynb`
+
+### using tmux
+
+- open new terminal on the local machine (don't open tmux)
+- `gcloud compute ssh` into the instance
+- run:
+    + `tmux new-session -s notebook`
+- new terminal will open. run:
+    + `jupyter notebook`
+- open browser:
+    + `localhost:8896`
+- detach if desired:
+    + `Ctrl+b d`
+- re-attach:
+    + `tmux attach -t notebook`
+- kill session:
+    + `tmux kill-session -t notebook`
 
