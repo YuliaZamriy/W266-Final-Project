@@ -30,20 +30,45 @@ def load_speech_data(data_path):
     return speech_ids, speeches
 
 
-def load_descr_data(descr_file_path, p):
+def load_descr_data(descr_file_path, p=False):
+
+    np.random.seed(444)
+
+    full_len = 2914465
+
+    if p:
+        sample = np.random.choice([0, 1], size=full_len, p=[1 - p, p])
+    else:
+        sample = np.ones(full_len, dtype=int)
 
     descr = {}
+    counter, check, = 0, 0
     with open(descr_file_path) as f:
         for line in f:
             if line[0] == 's':
                 keys = line.strip().split('|')[1:]
             else:
-                if np.random.choice(a=[0, 1], size=1, p=[1 - p, p]) == 1:
+                if sample[counter] == 1:
                     line = line.strip().split('|')
-                    descr[line[0]] = {k: v for k, v in zip(keys, line[1:])}
+                    # if line[-1] == 'exact':
+                    if descr.get(line[0], ''):
+                        descr[line[0]]['check'] += 1
+                    else:
+                        descr[line[0]] = {k: v for k, v in zip(keys, line[1:])}
+                        descr[line[0]]['check'] = 1
+            counter += 1
+
+    for d in set(descr):
+        if descr[d]['check'] > 1:
+            check += 1
+            del descr[d]
+
+    print("{} lines have been read".format(counter))
+    print("{} keys had duplicates and deleted".format(check))
+    print("The dictionary has {} keys".format(len(set(descr.keys()))))
 
     example = np.random.choice(list(descr.keys()))
-    print("Random congressperson: {}".format(example))
+    print("\nRandom congressperson: {}".format(example))
     for i in descr[example]:
         print(i, descr[example][i])
 

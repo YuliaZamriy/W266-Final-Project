@@ -73,7 +73,7 @@ def get_num_words_per_sample(sample_texts):
     return np.median(num_words)
 
 
-def get_ngrams(data, ngram_range=(3, 3), top_n=10, compare=True):
+def get_ngrams(data, ngram_range=(3, 3), top_n=10):
     """"
     # Arguments
     samples_texts: list, sample texts.
@@ -100,9 +100,6 @@ def get_ngrams(data, ngram_range=(3, 3), top_n=10, compare=True):
     all_counts = data_vec.sum(axis=0).tolist()[0]
     all_counts, all_ngrams = zip(*[(c, n) for c, n in sorted(
         zip(all_counts, all_ngrams), reverse=True)])
-
-    if compare:
-        compare_ngrams(data_vec, bins, vectorizer)
 
     return list(all_ngrams)[:num_ngrams], list(all_counts)[:num_ngrams]
 
@@ -136,25 +133,40 @@ def plot_sample_length_distribution(sample_texts):
     # Arguments
         samples_texts: list, sample texts.
     """
-    plt.hist([len(s) for s in sample_texts], 50)
+    speech_len = [len(s) for s in sample_texts]
+    pct = pd.DataFrame([np.percentile(speech_len, p) for p in range(0, 101, 10)]).T
+    pct.columns = list(range(0, 101, 10))
+    print("Speech length percentiles")
+    print(pct)
+
+    plt.figure(figsize=(20, 10))
+    plt.hist(speech_len, 50)
     plt.xlabel('Length of a speech')
     plt.ylabel('Number of speeches')
     plt.title('Speech length distribution')
     plt.show()
 
 
-def ngrams_by_category(data, ids, descr, category, category_name, p,
+def ngrams_by_category(data, ids, descr, category, category_name,
+                       p=False,
                        ngram_range=(3, 3),
                        top_n=10):
 
-    for cat in set(category):
-        if cat != -1:
-            data_cat = []
-            for i in range(len(ids)):
-                if descr[ids[i]][category_name] == str(cat):
-                    if np.random.choice(a=[0, 1], size=1, p=[1 - p, p]) == 1:
-                        data_cat.append(data[i])
+    np.random.seed(444)
 
+    if p:
+        sample = np.random.choice([0, 1], size=len(data), p=[1 - p, p])
+    else:
+        sample = np.ones(len(data), dtype=int)
+
+    for cat in category:
+        data_cat = []
+        for i in range(len(ids)):
+            if descr[ids[i]][category_name] == cat:
+                if sample[i] == 1:
+                    data_cat.append(data[i])
+
+        if data_cat:
             ngrams = get_ngrams(data_cat,
                                 ngram_range=ngram_range,
                                 top_n=top_n)[0]
@@ -271,6 +283,10 @@ def check_bin_probs_distr(y_probs, ids, descr, bins=[0.0, 0.4, 0.6, 1.0]):
     descr_df = pd.DataFrame.from_dict(descr, orient='index')
     main_df = summarize_df(descr_df.loc[ids], 'base')
 
+    # main_list = [0.080842, 0.086916, 58.403356, 0.521872, 0.554905, 229.872797]
+    # main_df = pd.DataFrame(main_list).T
+    # main_df.columns = ['Gender_F', 'Ethinicity_NW', 'AvgAge', 'Party_D', 'Chamber_H', 'AvgWordCount']
+
     print("Finished building main df")
 
     y_binned = np.digitize(y_probs, bins)
@@ -278,7 +294,7 @@ def check_bin_probs_distr(y_probs, ids, descr, bins=[0.0, 0.4, 0.6, 1.0]):
     df = pd.DataFrame()
 
     for i in range(1, len(bins)):
-        ids_bin = ids[y_binned.flatten() == i]
+        ids_bin = np.array(ids)[y_binned.flatten() == i]
         ids_df = summarize_df(descr_df.loc[ids_bin], bins[i])
         df = df.append(ids_df)
         print("Finished bin {}".format(bins[i]))
