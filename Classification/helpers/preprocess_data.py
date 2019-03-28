@@ -65,7 +65,7 @@ def split_train_val_test(data, ids, target, descr,
         test_zeroes_len = len(zeroes) - train_zeroes_len - test_zeroes_len
 
     # create randomly shuffled indices
-    random.seed(100)
+    np.random.seed(100)
     ones_shuffled = np.random.permutation(np.arange(len(ones)))
     zeroes_shuffled = np.random.permutation(np.arange(len(zeroes)))
 
@@ -203,7 +203,28 @@ def ngram_vectorize(train, train_target, val, test, **kwargs):
     return x_train, x_val, x_test
 
 
-def sequence_vectorize(train_texts, val_texts, test_texts, **kwargs):
+def split_speech_to_chunks(data, ids, target, max_len=100):
+
+    data_chunk, ids_chunk, target_chunk = [], [], []
+    for i in range(len(ids)):
+        words = data[i].split(' ')
+        chunk = [' '.join(words[j:j + max_len]) for j in range(0, len(words), max_len)]
+        data_chunk.extend(chunk)
+        ids_chunk.extend(ids[i] for x in range(len(chunk)))
+        target_chunk.extend(target[i] for x in range(len(chunk)))
+
+    print("Original data has {} speeches".format(len(data)))
+    print("It was split into {} chunks".format(len(data_chunk)))
+    print("Checks on ids and target", len(ids_chunk), len(target_chunk))
+    print("Original target mean {}".format(np.mean(target)))
+    print("New target mean {}".format(np.mean(target_chunk)))
+
+    return data_chunk, ids_chunk, target_chunk
+
+
+def sequence_vectorize(train_texts, val_texts, test_texts,
+                       num_words=10000,
+                       max_seq_length=100):
     """Vectorizes texts as sequence vectors.
     1 text = 1 sequence vector with fixed length.
     # Arguments
@@ -214,23 +235,27 @@ def sequence_vectorize(train_texts, val_texts, test_texts, **kwargs):
             texts and word index dictionary.
     """
     # Create vocabulary with training texts.
-    tokenizer = text.Tokenizer(num_words=kwargs['num_words'])
+    tokenizer = text.Tokenizer(
+        num_words=num_words,
+        lower=True,
+        oov_token='<unk>')
     tokenizer.fit_on_texts(train_texts)
 
     # Vectorize training and validation texts.
+    # Transforms each text in `texts` to a sequence of integers.
     x_train = tokenizer.texts_to_sequences(train_texts)
     x_val = tokenizer.texts_to_sequences(val_texts)
     x_test = tokenizer.texts_to_sequences(test_texts)
 
     # Get max sequence length.
-    max_length = len(max(x_train, key=len))
-    if max_length > kwargs['max_length']:
-        max_length = kwargs['max_length']
+    # max_length = len(max(x_train, key=len))
+    # if max_length > max_seq_length:
+    #     max_length = max_seq_length
 
     # Fix sequence length to max value. Sequences shorter than the length are
     # padded in the beginning and sequences longer are truncated
     # at the beginning.
-    x_train = sequence.pad_sequences(x_train, maxlen=max_length)
-    x_val = sequence.pad_sequences(x_val, maxlen=max_length)
+    x_train = sequence.pad_sequences(x_train, maxlen=max_seq_length)
+    x_val = sequence.pad_sequences(x_val, maxlen=max_seq_length)
 
     return x_train, x_val, x_test, tokenizer.word_index

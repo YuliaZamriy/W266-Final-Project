@@ -267,8 +267,8 @@ def summarize_df(df, index):
     # d = {k: v for k, v in descr.items() if k in set(ids)}
     # df = pd.DataFrame.from_dict(d, orient='index')
     vals = [
-        np.mean(df.Female),
-        np.mean(df.NonWhite),
+        np.mean(df.Female == '1.0'),
+        np.mean(df.NonWhite == '1.0'),
         np.mean(pd.to_numeric(df.Age)),
         np.mean(df.Party == 'D'),
         np.mean(df.Chamber == 'H'),
@@ -278,7 +278,7 @@ def summarize_df(df, index):
     return pd.DataFrame(vals, columns=[index], index=colnames).T
 
 
-def check_bin_probs_distr(y_probs, ids, descr_df, bins=[0.0, 0.4, 0.6, 1.0]):
+def check_bin_probs_distr(y_probs, ids, descr, bins=[0.0, 0.4, 0.6, 1.0]):
 
     main_df = summarize_df(descr_df, 'base')
     print("Validation sample means:")
@@ -352,7 +352,7 @@ def compare_ngrams(data, y_probs,
     data_vec = pd.concat([data_vec, pd.Series(y_binned)], axis=1)
     data_vec.columns = list(all_ngrams[cols]) + ['bin']
     data_vec = data_vec.groupby('bin').sum().T
-#     data_vec.columns = bins[1:]
+    data_vec.columns = bins[1:]
 
     print("\nTop {} ngrams by differentiating score:".format(top_k))
     for i in range(len(top_ngrams)):
@@ -367,7 +367,7 @@ def get_mispredictions(y_true, y_probs, data, ids, true, prob):
         indices = (np.array(y_true) == true) & (y_probs.flatten() > prob)
     else:
         indices = (np.array(y_true) == true) & (y_probs.flatten() < prob)
-    
+
     speeches = np.array(data)[indices]
     probs = y_probs[indices]
     ids = np.array(ids)[indices]
@@ -375,28 +375,32 @@ def get_mispredictions(y_true, y_probs, data, ids, true, prob):
     return speeches[ind], probs[ind][0], ids[ind]
 
 
-def print_mispredictions(y_true, y_probs, data, ids, descr_df):
+def print_mispredictions(y_true, y_probs, data, ids, descr):
 
     preds = get_mispredictions(y_true, y_probs, data, ids, 1, 0.9)
     print("\nTrue positive (Predicted prob: {0:.2f}):\n".format(preds[1]))
-    print(descr.loc[np.asarray(preds[2], dtype=int)])
+    for i in descr[preds[2]]:
+        print(i, descr[preds[2]][i])
     print("\n", preds[0])
     print("-" * 20)
 
     preds = get_mispredictions(y_true, y_probs, data, ids, 0, 0.1)
     print("\nTrue negative (Predicted prob: {0:.2f}):\n".format(preds[1]))
-    print(descr.loc[np.asarray(preds[2], dtype=int)])
+    for i in descr[preds[2]]:
+        print(i, descr[preds[2]][i])
     print("\n", preds[0])
     print("-" * 20)
 
     preds = get_mispredictions(y_true, y_probs, data, ids, 0, 0.9)
     print("\nFalse positive (Predicted prob: {0:.2f}):\n".format(preds[1]))
-    print(descr.loc[np.asarray(preds[2], dtype=int)])
+    for i in descr[preds[2]]:
+        print(i, descr[preds[2]][i])
     print("\n", preds[0])
     print("-" * 20)
 
     preds = get_mispredictions(y_true, y_probs, data, ids, 1, 0.1)
     print("\nFalse negative (Predicted prob: {0:.2f}):\n".format(preds[1]))
-    print(descr.loc[np.asarray(preds[2], dtype=int)])
+    for i in descr[preds[2]]:
+        print(i, descr[preds[2]][i])
     print("\n", preds[0])
     print("-" * 20)
