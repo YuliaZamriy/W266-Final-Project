@@ -367,36 +367,29 @@ def get_mispredictions(y_true, y_probs, data, ids, true, prob):
         indices = (np.array(y_true) == true) & (y_probs.flatten() > prob)
     else:
         indices = (np.array(y_true) == true) & (y_probs.flatten() < prob)
-    
-    speeches = np.array(data)[indices]
-    probs = y_probs[indices]
-    ids = np.array(ids)[indices]
-    ind = np.random.choice(len(speeches))
-    return speeches[ind], probs[ind][0], ids[ind]
+
+    data_sel, y_probs_sel, ids_sel = [], [], []
+    for i in range(len(indices)):
+        if indices[i]:
+            data_sel.append(data[i])
+            y_probs_sel.append(y_probs[i])
+            ids_sel.append(ids[i])
+    ind = np.random.choice(len(data_sel))
+    return data_sel[ind], y_probs_sel[ind][0], int(ids_sel[ind])
 
 
 def print_mispredictions(y_true, y_probs, data, ids, descr_df):
 
-    preds = get_mispredictions(y_true, y_probs, data, ids, 1, 0.9)
-    print("\nTrue positive (Predicted prob: {0:.2f}):\n".format(preds[1]))
-    print(descr.loc[np.asarray(preds[2], dtype=int)])
-    print("\n", preds[0])
-    print("-" * 20)
+    parameters = {
+        'True positive': (1, 0.9),
+        'True negative': (0, 0.1),
+        'False positive': (0, 0.9),
+        'False negative': (1, 0.1)
+    }
 
-    preds = get_mispredictions(y_true, y_probs, data, ids, 0, 0.1)
-    print("\nTrue negative (Predicted prob: {0:.2f}):\n".format(preds[1]))
-    print(descr.loc[np.asarray(preds[2], dtype=int)])
-    print("\n", preds[0])
-    print("-" * 20)
-
-    preds = get_mispredictions(y_true, y_probs, data, ids, 0, 0.9)
-    print("\nFalse positive (Predicted prob: {0:.2f}):\n".format(preds[1]))
-    print(descr.loc[np.asarray(preds[2], dtype=int)])
-    print("\n", preds[0])
-    print("-" * 20)
-
-    preds = get_mispredictions(y_true, y_probs, data, ids, 1, 0.1)
-    print("\nFalse negative (Predicted prob: {0:.2f}):\n".format(preds[1]))
-    print(descr.loc[np.asarray(preds[2], dtype=int)])
-    print("\n", preds[0])
-    print("-" * 20)
+    for par in parameters:
+        preds = get_mispredictions(y_true, y_probs, data, ids, parameters[par][0], parameters[par][1])
+        print("\n{} (Predicted prob: {:.2f}):\n".format(par, preds[1]))
+        print(descr_df.loc[preds[2]])
+        print("\n", preds[0])
+        print("-" * 20)
