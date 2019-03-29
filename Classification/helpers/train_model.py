@@ -69,8 +69,8 @@ def build_emb_matrix(glove_dir=None,
   num_words = min(max_num_words, len(word_index))
   embedding_matrix = np.zeros((num_words, emb_dim))
   for word, i in word_index.items():
-    if i > max_num_words:
-      continue
+    if i > max_num_words - 1:
+      break
     embedding_vector = embeddings_index.get(word)
     if embedding_vector is not None:
       # words not found in embedding index will be all-zeros.
@@ -260,8 +260,8 @@ def sepcnn_model(blocks,
 
 
 def train_model(data,
-                word_index,
-                log_dir,
+                word_index=None,
+                log_dir=None,
                 model='cnn',
                 learning_rate=1e-3,
                 epochs=1000,
@@ -302,7 +302,9 @@ def train_model(data,
 
   # Number of features will be the embedding input dimension. Add 1 for the
   # reserved index 0.
-  num_features = min(len(word_index) + 1, max_num_words)
+
+  if word_index:
+    num_features = min(len(word_index) + 1, max_num_words)
 
   # Create model instance.
   if model == 'cnn':
