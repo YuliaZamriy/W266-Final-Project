@@ -16,6 +16,7 @@ from sklearn.feature_selection import SelectKBest
 from sklearn.feature_selection import f_classif
 
 from sklearn.metrics import confusion_matrix
+from sklearn.metrics import classification_report
 from sklearn.calibration import calibration_curve
 # from sklearn.utils.multiclass import unique_labels
 
@@ -90,6 +91,8 @@ def get_ngrams(data, ngram_range=(3, 3), top_n=10):
         'strip_accents': 'unicode',
         'decode_error': 'replace',
         'analyzer': 'word',  # Split text into word tokens.
+        'min_df': 5,
+        'max_df': 0.7
     }
 
     vectorizer = CountVectorizer(**kwargs)
@@ -196,6 +199,8 @@ def plot_confusion_matrix(y_true, y_pred, classes,
     # classes = classes[unique_labels(y_true, y_pred)]
     print('Confusion matrix, without normalization')
     print(cm)
+
+    print(classification_report(y_true, y_pred, target_names=classes))
 
     if normalize:
         cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
@@ -330,6 +335,8 @@ def compare_ngrams(data, y_probs,
         'strip_accents': 'unicode',
         'decode_error': 'replace',
         'analyzer': 'word',  # Split text into word tokens.
+        'min_df': 5,
+        'max_df': 0.7
     }
 
     vectorizer = CountVectorizer(**kwargs)

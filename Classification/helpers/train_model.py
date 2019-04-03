@@ -43,8 +43,8 @@ class TimeHistory(tf.keras.callbacks.Callback):
 # Pre-trained embeddings
 
 
-def build_emb_matrix(glove_dir=None,
-                     word_index=None,
+def build_emb_matrix(glove_dir,
+                     word_index,
                      emb_dim=100,
                      max_num_words=20000):
 
@@ -86,7 +86,7 @@ def build_emb_matrix(glove_dir=None,
 # NN Ngram Model
 
 
-def mlp_model(layers, units, dropout_rate, input_shape, num_classes):
+def mlp_model(layers, units, dropout_rate, input_shape, op_units, op_activation):
   """
   Creates an instance of a multi-layer perceptron model.
 
@@ -95,12 +95,11 @@ def mlp_model(layers, units, dropout_rate, input_shape, num_classes):
       units: int, output dimension of the layers.
       dropout_rate: float, percentage of input to drop at Dropout layers.
       input_shape: tuple, shape of input to the model.
-      num_classes: int, number of output classes.
 
   Returns
       An MLP model instance.
   """
-  op_units, op_activation = 1, 'sigmoid'
+
   model = models.Sequential()
   model.add(Dropout(rate=dropout_rate, input_shape=input_shape))
 
@@ -124,12 +123,14 @@ def cnn_model(filters,
               pool_size,
               input_shape,
               num_features,
+              op_units,
+              op_activation,
               use_pretrained_embedding=False,
               is_embedding_trainable=False,
+              use_word_embedding=False,
               glove_dir=None,
               word_index=None):
 
-  op_units, op_activation = 1, 'sigmoid'
   model = models.Sequential()
 
   if use_pretrained_embedding:
@@ -142,7 +143,7 @@ def cnn_model(filters,
                         weights=[embedding_matrix],
                         input_length=input_shape[0],
                         trainable=is_embedding_trainable))
-  else:
+  elif use_word_embedding:
     model.add(Embedding(input_dim=num_features,
                         output_dim=embedding_dim,
                         input_length=input_shape[0]))
@@ -175,6 +176,8 @@ def sepcnn_model(blocks,
                  pool_size,
                  input_shape,
                  num_features,
+                 op_units,
+                 op_activation,
                  use_pretrained_embedding=False,
                  is_embedding_trainable=False,
                  glove_dir=None,
@@ -192,7 +195,6 @@ def sepcnn_model(blocks,
       dropout_rate: float, percentage of input to drop at Dropout layers.
       pool_size: int, factor by which to downscale input at MaxPooling layer.
       input_shape: tuple, shape of input to the model.
-      num_classes: int, number of output classes.
       num_features: int, number of words (embedding input dimension).
       use_pretrained_embedding: bool, true if pre-trained embedding is on.
       is_embedding_trainable: bool, true if embedding layer is trainable.
@@ -202,8 +204,6 @@ def sepcnn_model(blocks,
       A sepCNN model instance.
   """
 
-  # adjust this if using more than two classes in target
-  op_units, op_activation = 1, 'sigmoid'
   model = models.Sequential()
 
   # Add embedding layer. If pre-trained embedding is used add weights to the
@@ -260,9 +260,9 @@ def sepcnn_model(blocks,
 
 
 def train_model(data,
-                word_index=None,
-                log_dir=None,
+                log_dir,
                 model='cnn',
+                word_index=None,
                 learning_rate=1e-3,
                 epochs=1000,
                 batch_size=128,
@@ -275,8 +275,10 @@ def train_model(data,
                 kernel_size=3,
                 pool_size=3,
                 max_num_words=20000,
+                num_classes=2,
                 use_pretrained_embedding=False,
                 is_embedding_trainable=False,
+                use_word_embedding=False,
                 glove_dir=None):
   """Trains sequence model on the given dataset.
   # Arguments
@@ -297,14 +299,18 @@ def train_model(data,
   # Get the data.
   (x_train, train_labels), (x_val, val_labels) = data
 
-  # Verify that validation labels are in the same range as training labels.
-  num_classes = 2
+  if num_classes == 2:
+    op_units, op_activation = 1, 'sigmoid'
+  else:
+    op_units, op_activation = num_classes, 'softmax'
 
   # Number of features will be the embedding input dimension. Add 1 for the
   # reserved index 0.
 
   if word_index:
     num_features = min(len(word_index) + 1, max_num_words)
+  else:
+    num_features = None
 
   # Create model instance.
   if model == 'cnn':
@@ -316,7 +322,11 @@ def train_model(data,
                       pool_size=pool_size,
                       input_shape=x_train.shape[1:],
                       num_features=num_features,
+                      op_units=op_units,
+                      op_activation=op_activation,
                       use_pretrained_embedding=use_pretrained_embedding,
+                      is_embedding_trainable=is_embedding_trainable,
+                      use_word_embedding=use_word_embedding,
                       glove_dir=glove_dir,
                       word_index=word_index)
   elif model == 'sepcnn':
@@ -328,15 +338,19 @@ def train_model(data,
                          pool_size=pool_size,
                          input_shape=x_train.shape[1:],
                          num_features=num_features,
+                         op_units=op_units,
+                         op_activation=op_activation,
                          use_pretrained_embedding=use_pretrained_embedding,
+                         is_embedding_trainable=is_embedding_trainable,
                          glove_dir=glove_dir,
                          word_index=word_index)
-  elif model == 'ngram':
+  elif model == 'mlp':
     model = mlp_model(layers=layers,
                       units=units,
                       dropout_rate=dropout_rate,
                       input_shape=x_train.shape[1:],
-                      num_classes=num_classes)
+                      op_units=op_units,
+                      op_activation=op_activation)
 
   # Compile model with learning parameters.
   optimizer = tf.keras.optimizers.Adam(lr=learning_rate)

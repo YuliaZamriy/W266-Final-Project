@@ -257,5 +257,6 @@ def sequence_vectorize(train_texts, val_texts, test_texts,
     # at the beginning.
     x_train = sequence.pad_sequences(x_train, maxlen=max_seq_length)
     x_val = sequence.pad_sequences(x_val, maxlen=max_seq_length)
+    x_test = sequence.pad_sequences(x_test, maxlen=max_seq_length)
 
     return x_train, x_val, x_test, tokenizer.word_index
