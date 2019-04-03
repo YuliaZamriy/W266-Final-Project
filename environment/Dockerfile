@@ -16,4 +16,4 @@ RUN pip install -U nltk pandas requests gspread oauth2client df2gspread scipy sc
 
 #RUN python -m nltk.downloader -d /usr/share/nltk_data all
 
-pip install tensorflow==1.13.0rc2
+
