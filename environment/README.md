@@ -59,6 +59,19 @@ Step 4. Open Jupyter Notebook
 
 Navigate to http://localhost:8888 and enter the token from the command line.
 
+# Adding symbolic links to helper files
+
+Helper functions are located in `Classification` folder. But there is no need to copy them elsewhere, just create symbolic links to them:
+1. Within docker container (bash or notebook)
+2. Navigate to the working directory (wherever you need to run your code)
+3. Run the following commands:
+
+```
+ln -s /tf/notebooks/2019-spring-main/common w266_common
+ln -s /tf/notebooks/final-project/Classification/helpers/ helpers
+```
+
+
 # Working with Google Sheets
 
 Step 1. Connect Google Sheets and Jupyter Notebooks

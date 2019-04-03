@@ -26,3 +26,5 @@ data/glove.6B.100d.txt
 data/glove.6B.200d.txt
 data/glove.6B.300d.txt
 data/glove.6B.50d.txt
+Classification/ethnicity/.ipynb_checkpoints/
+Classification/gender/tests/.ipynb_checkpoints/
