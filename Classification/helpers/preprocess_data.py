@@ -62,7 +62,7 @@ def split_train_val_test(data, ids, target, descr,
     else:
         train_zeroes_len = int(len(zeroes) * splits[0])
         val_zeroes_len = int(len(zeroes) * splits[1])
-        test_zeroes_len = len(zeroes) - train_zeroes_len - test_zeroes_len
+        test_zeroes_len = len(zeroes) - train_zeroes_len - val_zeroes_len
 
     # create randomly shuffled indices
     np.random.seed(100)

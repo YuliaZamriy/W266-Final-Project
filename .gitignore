@@ -29,3 +29,7 @@ data/glove.6B.50d.txt
 Classification/ethnicity/.ipynb_checkpoints/
 Classification/gender/tests/.ipynb_checkpoints/
 Classification/gender/.ipynb_checkpoints/
+LDA/.ipynb_checkpoints/
+Classification/age/.ipynb_checkpoints/
+Classification/party/.ipynb_checkpoints/
+LDA/data

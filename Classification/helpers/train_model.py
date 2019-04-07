@@ -261,7 +261,7 @@ def sepcnn_model(blocks,
 
 def train_model(data,
                 log_dir,
-                model='cnn',
+                model_type='cnn',
                 word_index=None,
                 learning_rate=1e-3,
                 epochs=1000,
@@ -313,7 +313,7 @@ def train_model(data,
     num_features = None
 
   # Create model instance.
-  if model == 'cnn':
+  if model_type == 'cnn':
     model = cnn_model(filters=filters,
                       kernel_size=kernel_size,
                       layers=layers,
@@ -329,7 +329,7 @@ def train_model(data,
                       use_word_embedding=use_word_embedding,
                       glove_dir=glove_dir,
                       word_index=word_index)
-  elif model == 'sepcnn':
+  elif model_type == 'sepcnn':
     model = sepcnn_model(blocks=blocks,
                          filters=filters,
                          kernel_size=kernel_size,
@@ -344,7 +344,7 @@ def train_model(data,
                          is_embedding_trainable=is_embedding_trainable,
                          glove_dir=glove_dir,
                          word_index=word_index)
-  elif model == 'mlp':
+  elif model_type == 'mlp':
     model = mlp_model(layers=layers,
                       units=units,
                       dropout_rate=dropout_rate,
@@ -387,4 +387,4 @@ def train_model(data,
   train_pred_probs = model.predict(x_train)
   val_pred_probs = model.predict(x_val)
 
-  return history, train_pred_probs, val_pred_probs
+  return history, model, train_pred_probs, val_pred_probs

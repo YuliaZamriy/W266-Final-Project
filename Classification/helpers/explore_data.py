@@ -335,8 +335,8 @@ def compare_ngrams(data, y_probs,
         'strip_accents': 'unicode',
         'decode_error': 'replace',
         'analyzer': 'word',  # Split text into word tokens.
-        'min_df': 5,
-        'max_df': 0.7
+        'min_df': int(len(data) / 500),
+        'max_df': 0.1
     }
 
     vectorizer = CountVectorizer(**kwargs)
@@ -353,19 +353,21 @@ def compare_ngrams(data, y_probs,
     all_ngrams = np.array(vectorizer.get_feature_names())
     top_ngrams = all_ngrams[np.argsort(selector.scores_)[::-1]][:top_k]
     top_scores = selector.scores_[np.argsort(selector.scores_)[::-1]][:top_k]
+    ngram_df = pd.DataFrame({'ngram': top_ngrams, 'score': np.round(top_scores)})
 
     cols = selector.get_support(indices=True)
     data_vec = pd.DataFrame(data_vec.toarray())
     data_vec = pd.concat([data_vec, pd.Series(y_binned)], axis=1)
     data_vec.columns = list(all_ngrams[cols]) + ['bin']
-    data_vec = data_vec.groupby('bin').sum().T
-#     data_vec.columns = bins[1:]
+    data_vec = data_vec.groupby('bin').sum().T.reset_index()
+
+    cols = ['<' + str(round(p, 2)) for p in y_probs.groupby(y_binned).max()]
+    data_vec.columns = ['ngram'] + cols
+    data_vec = data_vec.merge(ngram_df, on='ngram')
 
     print("\nTop {} ngrams by differentiating score:".format(top_k))
-    for i in range(len(top_ngrams)):
-        print(top_ngrams[i], "\t", round(top_scores[i], 1))
 
-    return data_vec
+    return data_vec.sort_values(by='score', ascending=False).reset_index(drop=True)
 
 
 def get_mispredictions(y_true, y_probs, data, ids, true, prob):
