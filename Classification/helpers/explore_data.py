@@ -258,6 +258,37 @@ def plot_calibration_curve(y_true, y_probs, target_name, n_bins=10):
     plt.tight_layout()
 
 
+def plot_compare_calibration_curves(y_true, model_types, target_name, n_bins=10):
+
+    plt.figure(figsize=(10, 15))
+    ax1 = plt.subplot2grid((3, 1), (0, 0))
+    ax2 = plt.subplot2grid((3, 1), (1, 0))
+
+    ax1.plot([0, 1], [0, 1], "k:", label="Perfectly calibrated")
+
+    for y_probs, name in model_types:
+        fraction_of_positives, mean_predicted_value = \
+            calibration_curve(y_true, y_probs, n_bins=10)
+
+        ax1.plot(mean_predicted_value, fraction_of_positives, "s-",
+                 label="%s" % (name, ))
+
+        ax2.hist(y_probs, range=(0, 1), bins=10, label=name,
+                 histtype="step", lw=2)
+
+    ax1.set_ylabel("Fraction of positives")
+    ax1.set_ylim([-0.05, 1.05])
+    ax1.legend(loc="lower right")
+    ax1.set_title(target_name + ': Calibration plots (reliability curve)')
+
+    ax2.set_xlabel("Mean predicted value")
+    ax2.set_ylabel("Count")
+    ax2.set_title(target_name + ': Predicted Target Distribution')
+    ax2.legend(loc="upper right", ncol=2)
+
+    plt.tight_layout()
+
+
 def summarize_df(df, index):
 
     colnames = [
