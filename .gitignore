@@ -3,8 +3,8 @@ data/sample/hein-bound/
 data/sample/hein-daily/
 data/QA/.ipynb_checkpoints/
 internal
-environment/W266-2-c0ee0ca856ea.json
-environment/client_id.json
+Environment/W266-2-c0ee0ca856ea.json
+Environment/client_id.json
 data/QA/gs_connect.py
 data/QA/.ipynb_checkpoints/collecting_demo-checkpoint.ipynb data/QA/.ipynb_checkpoints/nltk-checkpoint.ipynb data/QA/.ipynb_checkpoints/speakermap_qa-checkpoint.ipynb
 data/QA/__pycache__/
