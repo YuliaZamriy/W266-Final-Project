@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 
-# Source: https://developers.google.com/machine-learning/guides/text-classification/step-4
+"""
+Module to preprocess data
+Inspiration: https://developers.google.com/machine-learning/guides/text-classification/step-4
+"""
 
 import time
 import os
@@ -18,12 +21,8 @@ from tensorflow.python.keras.layers import MaxPooling1D
 from tensorflow.python.keras.layers import GlobalAveragePooling1D
 from tensorflow.python.keras.layers import GlobalMaxPooling1D
 
-
-# from tensorflow.python.keras import initializers
-# from tensorflow.python.keras import regularizers
-
-
 # Custom Callbacks
+
 
 class TimeHistory(tf.keras.callbacks.Callback):
   """
@@ -40,14 +39,24 @@ class TimeHistory(tf.keras.callbacks.Callback):
   def on_epoch_end(self, epoch, logs={}):
     self.times.append(time.time() - self.epoch_time_start)
 
-# Pre-trained embeddings
-
 
 def build_emb_matrix(glove_dir,
                      word_index,
                      emb_dim=100,
                      max_num_words=20000):
+  """
+  Returns matrix with 6B Glove embeddings
 
+  Args:
+    glove_dir: directory with Glove embeddings
+    word_index: dictionary of pre-built word index
+
+  Kargs:
+    emb_dim: int, number of dimensions to use
+    max_num_words: max number of words to keep
+  """
+
+  # get the file name with glove embeddings
   emb_filename = 'glove.6B.' + str(emb_dim) + 'd.txt'
 
   start = time.time()
@@ -83,8 +92,6 @@ def build_emb_matrix(glove_dir,
 
   return embedding_matrix
 
-# NN Ngram Model
-
 
 def mlp_model(layers, units, dropout_rate, input_shape, op_units, op_activation):
   """
@@ -95,6 +102,8 @@ def mlp_model(layers, units, dropout_rate, input_shape, op_units, op_activation)
       units: int, output dimension of the layers.
       dropout_rate: float, percentage of input to drop at Dropout layers.
       input_shape: tuple, shape of input to the model.
+      op_units: number of output units (1 for binary target)
+      op_activation: activation function (sigmoid for binary target)
 
   Returns
       An MLP model instance.
@@ -112,9 +121,6 @@ def mlp_model(layers, units, dropout_rate, input_shape, op_units, op_activation)
   return model
 
 
-# CNN Model
-
-
 def cnn_model(filters,
               kernel_size,
               layers,
@@ -130,9 +136,35 @@ def cnn_model(filters,
               use_word_embedding=False,
               glove_dir=None,
               word_index=None):
+  """
+  Creates an instance of a cnn model.
+
+  Arguments
+      filters: int, number of output filters in the convolution
+      kernel_size: int, the length of the 1D convolution window
+      layers: int, number of convolutional layers in the model
+      embedding_dim: int, embedding dimension
+      dropout_rate: float, percentage of input to drop at dropout layers
+      pool_size: int, size of the max pooling windows
+      input_shape: tuple, shape of input to the model
+      num_features: int, max number of features to use
+      op_units: number of output units (1 for binary target)
+      op_activation: activation function (sigmoid for binary target)
+
+  Kwargs:
+      use_pretrained_embedding: bool, use pretrained embeddings or no
+      is_embedding_trainable: bool, train embeddings or no
+      use_word_embedding: bool, False if sentence encodding is used
+      glove_dir: directory with glove embeddings if applicable
+      word_index: word_index if applicable
+
+  Returns
+      An CNN model instance.
+  """
 
   model = models.Sequential()
 
+  # build embedding matrix if requested
   if use_pretrained_embedding:
     embedding_matrix = build_emb_matrix(glove_dir,
                                         word_index,
@@ -143,6 +175,7 @@ def cnn_model(filters,
                         weights=[embedding_matrix],
                         input_length=input_shape[0],
                         trainable=is_embedding_trainable))
+  # initialize word embeddings if requested
   elif use_word_embedding:
     model.add(Embedding(input_dim=num_features,
                         output_dim=embedding_dim,
@@ -165,8 +198,6 @@ def cnn_model(filters,
 
   return model
 
-# sepCNN Model
-
 
 def sepcnn_model(blocks,
                  filters,
@@ -187,7 +218,7 @@ def sepcnn_model(blocks,
 
   Creates an instance of a separable CNN model.
 
-  # Arguments
+  Args:
       blocks: int, number of pairs of sepCNN and pooling blocks in the model.
       filters: int, output dimension of the layers.
       kernel_size: int, length of the convolution window.
@@ -195,12 +226,17 @@ def sepcnn_model(blocks,
       dropout_rate: float, percentage of input to drop at Dropout layers.
       pool_size: int, factor by which to downscale input at MaxPooling layer.
       input_shape: tuple, shape of input to the model.
-      num_features: int, number of words (embedding input dimension).
-      use_pretrained_embedding: bool, true if pre-trained embedding is on.
-      is_embedding_trainable: bool, true if embedding layer is trainable.
-      embedding_matrix: dict, dictionary with embedding coefficients.
+      num_features: int, max number of features to use
+      op_units: number of output units (1 for binary target)
+      op_activation: activation function (sigmoid for binary target)
 
-  # Returns
+  Kwargs:
+      use_pretrained_embedding: bool, use pretrained embeddings or no
+      is_embedding_trainable: bool, train embeddings or no
+      glove_dir: directory with glove embeddings if applicable
+      word_index: word_index if applicable
+
+  Returns:
       A sepCNN model instance.
   """
 
@@ -256,8 +292,6 @@ def sepcnn_model(blocks,
   model.add(Dense(op_units, activation=op_activation))
   return model
 
-# Train model
-
 
 def train_model(data,
                 log_dir,
@@ -280,9 +314,16 @@ def train_model(data,
                 is_embedding_trainable=False,
                 use_word_embedding=False,
                 glove_dir=None):
-  """Trains sequence model on the given dataset.
-  # Arguments
+  """
+  Trains sequence model on the given dataset.
+
+  Args:
       data: tuples of vectorized training and test texts and labels.
+      log_dir: directory to write logs to
+
+  Kwargs:
+      model_type: str, type of model to train
+      word_index: word_index if applicable
       learning_rate: float, learning rate for training model.
       epochs: int, number of epochs.
       batch_size: int, number of samples per batch.
@@ -292,10 +333,14 @@ def train_model(data,
       embedding_dim: int, dimension of the embedding vectors.
       kernel_size: int, length of the convolution window.
       pool_size: int, factor by which to downscale input at MaxPooling layer.
-  # Raises
-      ValueError: If validation data has label values which were not seen
-          in the training data.
+      max_num_words: int, max number of features to use
+      num_classes: int, number of classes in the target variable
+      use_pretrained_embedding: bool, use pretrained embeddings or no
+      is_embedding_trainable: bool, train embeddings or no
+      use_word_embedding: bool, False if sentence encodding is used
+      glove_dir: directory with glove embeddings if applicable
   """
+
   # Get the data.
   (x_train, train_labels), (x_val, val_labels) = data
 
@@ -303,9 +348,6 @@ def train_model(data,
     op_units, op_activation = 1, 'sigmoid'
   else:
     op_units, op_activation = num_classes, 'softmax'
-
-  # Number of features will be the embedding input dimension. Add 1 for the
-  # reserved index 0.
 
   if word_index:
     num_features = min(len(word_index) + 1, max_num_words)

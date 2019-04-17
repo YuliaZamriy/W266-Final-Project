@@ -1,7 +1,11 @@
-"""Module to explore data.
+#!/usr/bin/env python
+
+"""
+Module to explore data.
 
 Contains functions to help study, visualize and understand datasets.
 """
+
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
@@ -18,14 +22,16 @@ from sklearn.feature_selection import f_classif
 from sklearn.metrics import confusion_matrix
 from sklearn.metrics import classification_report
 from sklearn.calibration import calibration_curve
-# from sklearn.utils.multiclass import unique_labels
 
 from w266_common import utils
 
 
 def get_counts(target):
     """
-    Checks the distribution of values in the input list
+    Prints the distribution of values in the input list
+
+    Args:
+        target: list of target values
     """
     unique, counts = np.unique(target, return_counts=True)
     M = np.concatenate((unique.astype(int), counts.astype(int))).reshape((2, unique.shape[0])).T
@@ -33,6 +39,13 @@ def get_counts(target):
 
 
 def get_counts_by_category(target, category):
+    """
+    Prints the distribution of values in the input list by category
+
+    Args:
+        target: list of target values
+        category: list of category values (same length as target)
+    """
 
     target = np.array(target)
     category = np.array(category)
@@ -50,8 +63,10 @@ def random_speech(data, ids, target, descr, value=1):
         data: list of speeches
         ids: list of speech ids
         target: list of 0,1
+        descr: dictionary with descriptive information
+
+    Kwargs:
         value: int, 0 or 1
-        descr: dictionary with descriptive infor
     """
     r = np.random.choice(np.array(ids)[np.array(target) == value])
     print("Speaker information")
@@ -61,36 +76,42 @@ def random_speech(data, ids, target, descr, value=1):
     print(data[ids.index(r)])
 
 
-def get_num_words_per_sample(sample_texts):
-    """Gets the median number of words per sample given corpus.
-
-    # Arguments
-        sample_texts: list, sample texts.
-
-    # Returns
-        int, median number of words per sample.
+def get_num_words_per_sample(data):
     """
-    num_words = [len(s.split()) for s in sample_texts]
+    Gets the median number of words per speech
+
+    Args:
+        data: list of speeches
+
+    Returns:
+        int, median number of words per speech
+    """
+    num_words = [len(s.split()) for s in data]
     return np.median(num_words)
 
 
 def get_ngrams(data, ngram_range=(3, 3), top_n=10):
     """"
-    # Arguments
-    samples_texts: list, sample texts.
-    ngram_range: tuple (min, mplt), The range of n-gram values to consider.
-        Min and mplt are the lower and upper bound values for the range.
-    num_ngrams: int, number of n-grams to plot.
-        Top `num_ngrams` frequent n-grams will be plotted.
+    Creates ngrams from input and outputs only top_n of them
+
+    Args:
+        data: list of speeches
+
+    Kwargs:
+        ngram_range: tuple (min, max), range of ngram values to consider
+        top_n: int, n most frequent ngrams
+
+    Returns:
+        tuple of lists (ngrams, counts)
     """
 
-    # Create args required for vectorizing.
+    # vectorization parameters
     kwargs = {
         'ngram_range': ngram_range,
         'dtype': 'int32',
         'strip_accents': 'unicode',
         'decode_error': 'replace',
-        'analyzer': 'word',  # Split text into word tokens.
+        'analyzer': 'word',
         'min_df': 5,
         'max_df': 0.7
     }
@@ -98,12 +119,18 @@ def get_ngrams(data, ngram_range=(3, 3), top_n=10):
     vectorizer = CountVectorizer(**kwargs)
     data_vec = vectorizer.fit_transform(data)
 
+    # get ngrams values (words, phrases)
     all_ngrams = list(vectorizer.get_feature_names())
     num_ngrams = min(top_n, len(all_ngrams))
+
+    # get total counts for each ngram
     all_counts = data_vec.sum(axis=0).tolist()[0]
+
+    # combine ngram names and counts
     all_counts, all_ngrams = zip(*[(c, n) for c, n in sorted(
         zip(all_counts, all_ngrams), reverse=True)])
 
+    # return only top_n ngrams with counts
     return list(all_ngrams)[:num_ngrams], list(all_counts)[:num_ngrams]
 
 
@@ -111,7 +138,14 @@ def plot_frequency_distribution_of_ngrams(data,
                                           ngram_range=(1, 3),
                                           num_ngrams=50):
     """
-    Plots the frequency distribution of n-grams.
+    Plots the frequency distribution of ngrams
+
+    Args:
+        data: list of speeches
+
+    Kwargs:
+        ngram_range: tuple (min, max), range of ngram values to consider
+        num_ngrams: int, number of most frequent ngrams to plot
     """
 
     ngrams, counts = get_ngrams(data,
@@ -130,13 +164,17 @@ def plot_frequency_distribution_of_ngrams(data,
     plt.show()
 
 
-def plot_sample_length_distribution(sample_texts):
-    """Plots the sample length distribution.
-
-    # Arguments
-        samples_texts: list, sample texts.
+def plot_sample_length_distribution(data):
     """
-    speech_len = [len(s.split(' ')) for s in sample_texts]
+    Plots speech length distribution
+
+    Args:
+        data: list of speeches
+    """
+
+    # get length for each speech
+    speech_len = [len(s.split(' ')) for s in data]
+    # calculate percentiles for speech length
     pct = pd.DataFrame([np.percentile(speech_len, p) for p in range(0, 101, 10)]).T
     pct.columns = list(range(0, 101, 10))
     print("Speech length percentiles")
@@ -154,14 +192,32 @@ def ngrams_by_category(data, ids, descr, category, category_name,
                        p=False,
                        ngram_range=(3, 3),
                        top_n=10):
+    """
+    Prints top_n ngrams by category
 
+    Args:
+        data: list of speeches
+        ids: speech ids (same length as data)
+        descr: dictionary with descriptive information
+        category: list of category values (same length as data)
+        catgory_name: string, name of the category for the chart
+
+    Kwargs:
+        p: float between 0 and 1; if not False, take sample of data
+        ngram_range: tuple (min, max), range of ngram values to consider
+        top_n: int, n most frequent ngrams
+    """
+
+    # random seed in case random sample is requested
     np.random.seed(444)
 
+    # create list for sampling
     if p:
         sample = np.random.choice([0, 1], size=len(data), p=[1 - p, p])
     else:
         sample = np.ones(len(data), dtype=int)
 
+    # create data sub-list for each category value
     for cat in category:
         data_cat = []
         for i in range(len(ids)):
@@ -169,11 +225,13 @@ def ngrams_by_category(data, ids, descr, category, category_name,
                 if sample[i] == 1:
                     data_cat.append(data[i])
 
+        # get ngrams for each sub-list
         if data_cat:
             ngrams = get_ngrams(data_cat,
                                 ngram_range=ngram_range,
                                 top_n=top_n)[0]
 
+            # print ngrams for sub-list
             print("\nFor {} {} top {} {} ngrams are:".format(category_name, cat, top_n, ngram_range))
             for n in ngrams:
                 print(n)
@@ -185,9 +243,19 @@ def plot_confusion_matrix(y_true, y_pred, classes,
                           cmap=plt.cm.Blues):
     """
     Source: https://scikit-learn.org/stable/auto_examples/model_selection/plot_confusion_matrix.html#sphx-glr-auto-examples-model-selection-plot-confusion-matrix-py
-    This function prints and plots the confusion matrix.
-    Normalization can be applied by setting `normalize=True`.
+
+    Prints and plots the confusion matrix.
+
+    Args:
+        y_true: list of true target labels
+        y_pred: list of predicted target labels
+        classes: tuple of class labels in 0, 1 order
+
+    Kwargs:
+        normalize: bool, normalize confusion matrix or not
+        cmap: color map
     """
+
     if normalize:
         title = 'Normalized confusion matrix'
     else:
@@ -195,8 +263,6 @@ def plot_confusion_matrix(y_true, y_pred, classes,
 
     # Compute confusion matrix
     cm = confusion_matrix(y_true, y_pred)
-    # Only use the labels that appear in the data
-    # classes = classes[unique_labels(y_true, y_pred)]
     print('Confusion matrix, without normalization')
     print(cm)
 
@@ -208,20 +274,22 @@ def plot_confusion_matrix(y_true, y_pred, classes,
     fig, ax = plt.subplots()
     im = ax.imshow(cm, interpolation='nearest', cmap=cmap)
     ax.figure.colorbar(im, ax=ax)
-    # We want to show all ticks...
+    # show all ticks...
     ax.set(xticks=np.arange(cm.shape[1]),
            yticks=np.arange(cm.shape[0]),
-           # ... and label them with the respective list entries
-           xticklabels=classes, yticklabels=classes,
+           xticklabels=classes,
+           yticklabels=classes,
            title=title,
            ylabel='True label',
            xlabel='Predicted label')
 
-    # Rotate the tick labels and set their alignment.
-    plt.setp(ax.get_xticklabels(), rotation=45, ha="right",
+    # rotate the tick labels and set their alignment.
+    plt.setp(ax.get_xticklabels(),
+             rotation=45,
+             ha="right",
              rotation_mode="anchor")
 
-    # Loop over data dimensions and create text annotations.
+    # loop over data dimensions and create text annotations.
     fmt = '.2f' if normalize else 'd'
     thresh = cm.max() / 2.
     for i in range(cm.shape[0]):
@@ -236,6 +304,16 @@ def plot_confusion_matrix(y_true, y_pred, classes,
 def plot_calibration_curve(y_true, y_probs, target_name, n_bins=10):
     """
     Source: https://scikit-learn.org/stable/auto_examples/calibration/plot_calibration_curve.html#sphx-glr-auto-examples-calibration-plot-calibration-curve-py
+
+    Plots calibration curves
+
+    Args:
+        y_true: list of true target labels
+        y_probs: list of predicted probabilities for each speech
+        target_name: str, name of the target category
+
+    Kwargs:
+        n_bins: int, number of bins for the curve
     """
 
     fig = plt.figure(figsize=(10, 10))
@@ -259,6 +337,17 @@ def plot_calibration_curve(y_true, y_probs, target_name, n_bins=10):
 
 
 def plot_compare_calibration_curves(y_true, model_types, target_name, n_bins=10):
+    """
+    Plots calibration curves for multiple models
+
+    Args:
+        y_true: list of true target labels
+        model_types: list of tuples (list of predicted probabilities, model type name)
+        target_name: str, name of the target category
+
+    Kwargs:
+        n_bins: int, number of bins for the curve
+    """
 
     plt.figure(figsize=(10, 15))
     ax1 = plt.subplot2grid((3, 1), (0, 0))
@@ -290,7 +379,16 @@ def plot_compare_calibration_curves(y_true, model_types, target_name, n_bins=10)
 
 
 def summarize_df(df, index):
+    """
+    Summarizes data frame by input category
 
+    Args:
+        df: data frame to separate
+        index: str or list of str with category names
+
+    Returns:
+        data frame
+    """
     colnames = [
         'Gender_F',
         'Ethinicity_NW',
@@ -300,8 +398,6 @@ def summarize_df(df, index):
         'AvgWordCount'
     ]
 
-    # d = {k: v for k, v in descr.items() if k in set(ids)}
-    # df = pd.DataFrame.from_dict(d, orient='index')
     vals = [
         np.mean(df.Female),
         np.mean(df.NonWhite),
@@ -315,22 +411,38 @@ def summarize_df(df, index):
 
 
 def check_bin_probs_distr(y_probs, ids, descr_df, bins=[0.0, 0.4, 0.6, 1.0]):
+    """
+    Checks distribution of demo variables by probability bins
 
+    Args:
+        y_probs: list of predicted probabilities for each speech
+        ids: list of speech ids
+        descr_df: data frame with descriptive information
+
+    Kwargs:
+        bins: list of bin cut off points
+    """
+
+    # summarize main descriptive data frame
     main_df = summarize_df(descr_df, 'base')
     print("Validation sample means:")
     print(main_df)
 
+    # group probabilities by bins
     y_binned = np.digitize(y_probs, bins)
 
     df = pd.DataFrame()
 
+    # summarize data within each probability bin
     for i in range(1, len(bins)):
         ids_bin = np.array(ids)[y_binned.flatten() == i]
         ids_df = summarize_df(descr_df.loc[np.asarray(ids_bin, dtype=int)], bins[i])
         df = df.append(ids_df)
 
+    # replicate rows in main_df to match number of categories
     main_df = main_df.append([main_df] * (df.shape[0] - 1), ignore_index=True)
     main_df.index = df.index
+    # calculate index of category data compared to overall data distribution
     df = round(df.divide(main_df), 2)
 
     return df
@@ -340,7 +452,20 @@ def ngrams_by_bin(data, y_probs,
                   bins=[0.0, 0.4, 0.6, 1.0],
                   ngram_range=(3, 4),
                   top_n=10):
+    """
+    Prints top_n ngrams by probability bin
 
+    Args:
+        data: list of speeches
+        y_probs: list of predicted probabilities (same length as data)
+
+    Kwargs:
+        bins: list of bin cut off points
+        ngram_range: tuple (min, max), range of ngram values to consider
+        top_n: int, n most frequent ngrams
+    """
+
+    # group probabilities by bins
     y_binned = np.digitize(y_probs, bins)
     for i in range(1, len(bins)):
         data_bin = np.array(data)[y_binned.flatten() == i]
@@ -357,7 +482,20 @@ def compare_ngrams(data, y_probs,
                    bins=[0.0, 0.4, 0.6, 1.0],
                    ngram_range=(3, 4),
                    top_k=10):
+    """
+    Gets top_k ngrams that differentiate the most across probability bins
 
+    Args:
+        data: list of speeches
+        y_probs: list of predicted probabilities (same length as data)
+
+    Kwargs:
+        bins: list of bin cut off points
+        ngram_range: tuple (min, max), range of ngram values to consider
+        top_k: int, k most differentiating ngrams
+    """
+
+    # group probabilities by bins
     y_binned = np.digitize(y_probs, bins).flatten()
 
     kwargs = {
@@ -402,10 +540,27 @@ def compare_ngrams(data, y_probs,
 
 
 def get_mispredictions(y_true, y_probs, data, ids, true, prob):
+    """
+    Gets examples of speeches that were classified as TP, TN, FP, FN
 
+    Args:
+        y_true: list of true target labels
+        y_probs: list of predicted probabilities for each speech
+        data: list of speeches
+        ids: list of speech ids
+        true: int, 0 or 1 for non-target or target value
+        prob: float between 0 and 1 for probability cut off
+
+    Returns:
+        tuple (speech, probability, id of speech)
+    """
+
+    # get indices for positive and negative predicitons
     if prob > 0.5:
+        # true and false positives
         indices = (np.array(y_true) == true) & (y_probs.flatten() > prob)
     else:
+        # true and false negatives
         indices = (np.array(y_true) == true) & (y_probs.flatten() < prob)
 
     data_sel, y_probs_sel, ids_sel = [], [], []
@@ -414,11 +569,22 @@ def get_mispredictions(y_true, y_probs, data, ids, true, prob):
             data_sel.append(data[i])
             y_probs_sel.append(y_probs[i])
             ids_sel.append(ids[i])
+    # get index of a random speech that satisfies criteria
     ind = np.random.choice(len(data_sel))
     return data_sel[ind], y_probs_sel[ind][0], int(ids_sel[ind])
 
 
 def print_mispredictions(y_true, y_probs, data, ids, descr_df):
+    """
+    Prints examples of speeches that were classified as TP, TN, FP, FN
+
+    Args:
+        y_true: list of true target labels
+        y_probs: list of predicted probabilities for each speech
+        data: list of speeches
+        ids: list of speech ids
+        descr_df: data frame with descriptive information
+    """
 
     parameters = {
         'True positive': (1, 0.9),

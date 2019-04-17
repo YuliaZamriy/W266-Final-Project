@@ -1,10 +1,24 @@
 #!/usr/bin/env python
 
+"""
+Module to load data
+"""
+
 import os
 import numpy as np
 
 
 def load_speech_data(data_path):
+    """
+    Loads speeches from the specified data path.
+    Separates speeches from speech ids.
+
+    Args:
+        data_path: path to speech files
+
+    Returns:
+        tuple (list of speech ids, list of speeches)
+    """
 
     speech_ids, speeches = [], []
 
@@ -21,6 +35,7 @@ def load_speech_data(data_path):
                     speech = speech.split('|')
                     # skipping empty rows
                     if speech:
+                        # first element is speech id
                         speech_ids.append(speech[0])
                         # some speeches have pipes in them
                         speeches.append(' '.join(speech[1:]))
@@ -31,26 +46,38 @@ def load_speech_data(data_path):
 
 
 def load_descr_data(descr_file_path, p=False):
+    """
+    Loads speech descriptive information file into a dictionary
+
+    Args:
+        descr_file_path: path to the file
+        p: float between 0 and 1; take random sample if not False
+
+    Returns:
+        dictionary with speech descriptive information
+    """
 
     np.random.seed(444)
-
+    # hard code number of unique speeches
     full_len = 2914465
 
+    # create a list for random sampling
     if p:
         sample = np.random.choice([0, 1], size=full_len, p=[1 - p, p])
     else:
         sample = np.ones(full_len, dtype=int)
 
     descr = {}
+    # create flags for iterating and counting
     counter, check, = 0, 0
     with open(descr_file_path) as f:
         for line in f:
+            # first line is column names
             if line[0] == 's':
                 keys = line.strip().split('|')[1:]
             else:
                 if sample[counter] == 1:
                     line = line.strip().split('|')
-                    # if line[-1] == 'exact':
                     if descr.get(line[0], ''):
                         descr[line[0]]['check'] += 1
                     else:
@@ -58,6 +85,8 @@ def load_descr_data(descr_file_path, p=False):
                         descr[line[0]]['check'] = 1
             counter += 1
 
+    # delete speeches with multiple records
+    # they were incorrect fuzzy matches
     for d in set(descr):
         if descr[d]['check'] > 1:
             check += 1
@@ -76,6 +105,9 @@ def load_descr_data(descr_file_path, p=False):
 
 
 def create_target_labels(speech_ids, descr):
+    """
+    Creates lists for target variables
+    """
 
     gender, ethnicity, age, party, chamber, congress = [], [], [], [], [], []
 
@@ -88,14 +120,3 @@ def create_target_labels(speech_ids, descr):
         congress.append(int(float(descr.get(i, {}).get('Congress', '-1'))))
 
     return gender, ethnicity, age, party, chamber, congress
-
-
-def filter_data(data, ids, target, filter, value):
-    data_f, ids_f, target_f = [], [], []
-    for i in range(len(target)):
-        if filter[i] == value:
-            data_f.append(data[i])
-            ids_f.append(ids[i])
-            target_f.append(target[i])
-
-    return data_f, ids_f, target_f

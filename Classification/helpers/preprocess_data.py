@@ -1,5 +1,9 @@
 #!/usr/bin/env python
 
+"""
+Module to preprocess data
+"""
+
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.feature_selection import SelectKBest
 from sklearn.feature_selection import f_classif
@@ -22,10 +26,11 @@ def split_train_val_test(data, ids, target, descr,
         data: list of speeches
         ids: list of speech ids
         target: list of target values (0,1,-1)
-        balance: desired ratio of 0s to 1s
-        splits: list of floats for [train, validation, test] splits
+        descr: dictionary with speech descriptive information
 
     Kwards:
+        balance: desired ratio of 0s to 1s
+        splits: list of floats for [train, validation, test] splits
         word_count: min number of words in the speech
 
     Returns:
@@ -115,50 +120,25 @@ def split_train_val_test(data, ids, target, descr,
     return train, train_ids, train_target, val, val_ids, val_target, test, test_ids, test_target
 
 
-def split_by_category(data, ids, target, descr, category):
-
-    train, train_ids, train_target, val, val_ids, val_target, test, test_ids, test_target = [], [], [], [], [], [], [], [], []
-    for c in set(category):
-        data_c, ids_c, target_c = [], [], []
-
-        for i in range(len(category)):
-            if category[i] == c:
-                data_c.append(data[i])
-                ids_c.append(ids[i])
-                target_c.append(target[i])
-
-        train_c, train_ids_c, train_target_c, val_c, val_ids_c, val_target_c, test_c, test_ids_c, test_target_c = split_train_val_test(data_c, ids_c, target_c, descr)
-
-        train.append(train_c)
-        train_ids.append(train_ids_c)
-        train_target.append(train_target_c)
-        val.append(val_c)
-        val_ids.append(val_ids_c)
-        val_target.append(val_target_c)
-        test.append(test_c)
-        test_ids.append(test_ids_c)
-        test_target.append(test_target_c)
-
-    return train, train_ids, train_target, val, val_ids, val_target, test, test_ids, test_target
-
-
 def ngram_vectorize(train, train_target, val, test, **kwargs):
     """
-    Vectorizes texts as n-gram vectors.
+    Vectorizes texts as ngram vectors.
 
     1 text = 1 tf-idf vector the length of vocabulary of ngrams.
 
-    Arguments:
-        train_texts: list, training text strings.
-        train_labels: np.ndarray, training labels.
-        val_texts: list, validation text strings.
+    Args:
+        train: list of train speeches
+        train_target: list of train target labels
+        val: list of validation speeches
+        test: list of test speeches
 
     Returns:
         x_train, x_val: vectorized training and validation texts
     """
-    # Create keyword arguments to pass to the 'tf-idf' vectorizer.
+
+    # Create keyword arguments to pass to the 'tf-idf' vectorizer
     vec_params = {
-        'ngram_range': kwargs['ngram_range'],  # Use 1-grams + 2-grams.
+        'ngram_range': kwargs['ngram_range'],
         'dtype': 'int32',
         'strip_accents': 'unicode',
         'decode_error': 'replace',
@@ -204,6 +184,23 @@ def ngram_vectorize(train, train_target, val, test, **kwargs):
 
 
 def split_speech_to_chunks(data, ids, target, max_len=100):
+    """
+    Split speeches into chunks
+
+    Args:
+        data: list of speeches
+        ids: list of speech ids
+        target: list of target labels
+
+    Kwards:
+        max_len: int, chunk length
+
+    Returns:
+        tuple of lists:
+            list of chunked speeches
+            list of chunked ids
+            list of chunked target labels
+    """
 
     data_chunk, ids_chunk, target_chunk = [], [], []
     for i in range(len(ids)):
@@ -222,18 +219,27 @@ def split_speech_to_chunks(data, ids, target, max_len=100):
     return data_chunk, ids_chunk, target_chunk
 
 
-def sequence_vectorize(train_texts, val_texts, test_texts,
+def sequence_vectorize(train, val, test,
                        num_words=10000,
                        max_seq_length=100):
-    """Vectorizes texts as sequence vectors.
-    1 text = 1 sequence vector with fixed length.
-    # Arguments
-        train_texts: list, training text strings.
-        val_texts: list, validation text strings.
-    # Returns
-        x_train, x_val, word_index: vectorized training and validation
-            texts and word index dictionary.
     """
+    Vectorizes texts as sequence vectors.
+    1 text = 1 sequence vector with fixed length.
+
+    Args:
+        train: list, training speeches
+        val: list, validation speeches
+        test: list, test speeches
+
+    Kwargs:
+        num_words: int, number of words to keep
+        max_seq_length: int, make all sequences of this length
+
+    Returns:
+        x_train, x_val, x_test, word_index: vectorized training, validation, test
+            speeches and word index dictionary.
+    """
+
     # Create vocabulary with training texts.
     tokenizer = text.Tokenizer(
         num_words=num_words,
@@ -242,15 +248,10 @@ def sequence_vectorize(train_texts, val_texts, test_texts,
     tokenizer.fit_on_texts(train_texts)
 
     # Vectorize training and validation texts.
-    # Transforms each text in `texts` to a sequence of integers.
-    x_train = tokenizer.texts_to_sequences(train_texts)
-    x_val = tokenizer.texts_to_sequences(val_texts)
-    x_test = tokenizer.texts_to_sequences(test_texts)
-
-    # Get max sequence length.
-    # max_length = len(max(x_train, key=len))
-    # if max_length > max_seq_length:
-    #     max_length = max_seq_length
+    # Transforms each text to a sequence of integers.
+    x_train = tokenizer.texts_to_sequences(train)
+    x_val = tokenizer.texts_to_sequences(val)
+    x_test = tokenizer.texts_to_sequences(test)
 
     # Fix sequence length to max value. Sequences shorter than the length are
     # padded in the beginning and sequences longer are truncated
