@@ -8,11 +8,12 @@
 
 ```
    .
-    ├── build                   # Compiled files (alternatively `dist`)
-    ├── docs                    # Documentation files (alternatively `doc`)
-    ├── src                     # Source files (alternatively `lib` or `app`)
-    ├── test                    # Automated tests (alternatively `spec` or `tests`)
-    ├── tools                   # Tools and utilities
-    ├── LICENSE
+    ├── Classification         # Classification notebooks 
+    ├── EDA                    # EDA notebooks
+    ├── Environment            # Setting up GC instance or Docker container
+    ├── FinalPaper             # Final Paper PDF
+    ├── LDA                    # Topic Modeling notebooks
+    ├── data                   # Selected datasets (full data is available at the source)
+    ├── .gitignore
     └── README.md
 ```

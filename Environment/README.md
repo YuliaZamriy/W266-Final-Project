@@ -84,6 +84,7 @@ Step 2. Adjust paramters in `./environment/gs_connect.py`:
 - spreadsheet key (if different) from the Google Sheets URL
 
 Step 3. Enable Google Sheets API here:
+
     + https://console.developers.google.com/apis/api/sheets.googleapis.com/overview?project=zzzzzzzzzzzzzzz
     + The `zzzzzzzzzzzzzzz` needs to be adjusted for your project id. It can be obtained from client_id.json ("client_id":"zzzzzzzzzzzzzzz-xxxxxxxxxxxxxxxxxxxxxxxxx.apps.googleusercontent.com")
     + Alternatively, you can run `gs_connect.py` and it'll give an error with the instructions
